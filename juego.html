@@ -6,10 +6,22 @@
     <link rel="stylesheet" href="css/juego.css">
   </head>
   <body>
-    <div class="col-40">
+    <div class="container">
+    <div class="col-10">
+      <div class="jugador" id="jugador"></div>
+      <div id="contador" class="contador oculto">0</div>
+      Movimientos
+      <hr>  
+      <span class="subtitulo">Record</span>
+      <div class="record"> 
+        <p id="nombreRecord"></p>
+        <span id="valorRecord"></span>
+      </div>
+    </div>
+    <div class="col-30">
     
       <div id="titulo">
-        Titulo
+        BMO Arcade
       </div>
       <div id="instrucciones">
         Instrucciones
@@ -24,7 +36,7 @@
       </div>
       <div id="ultimo-mov">
         Ultimo movimiento
-        <div id="flecha" class="texto-centrado">
+        <div id="flecha" class="texto-centrado oculto">
           
         </div>
       </div>
@@ -57,11 +69,24 @@
             <img src="./images/80.jpg" alt="pieza8" width="400" height="400" />
           </div>
           <div class="piezas" id="pieza9">
+              <img src="#" alt="" width="400" height="400" />
           </div>
       </div>
     </div>
+    </div>
+    <div class="bienvenida visible">  
+        Gracias por jugar BMO Arcade        
+        <form action="#">
+          <label for="name">¿Cuál es tu nombre?</label>
+          <input type="text" name="name" autofocus autocomplete="off" id="nombre">
+          <input type="button" value="Iniciar" id="btnIniciar">
+        </form>
+    </div>
+    <div class="modal oculto" id="modal">
+      <div id="mensajeGanador"></div>
+    </div>
     <div id="footer">
-      
+      Pablo Schonwiesner - Desarrollador Full Stack JS
     </div>
     <script src="js/juego.js"></script>
   </body>

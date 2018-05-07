@@ -1,8 +1,68 @@
 // Arreglo que contiene las intrucciones del juego 
-var instrucciones = [];
+var instrucciones = ['Utilizar las flechas para mover las piezas', 'Ordenar las piezas hasta alcanzar la imagen objetivo'];
+var mensajes = [];
 // Arreglo para ir guardando los movimientos que se vayan realizando
 var movimientos = [];
+var modal = document.querySelector('#modal');
+var nombre = document.querySelector('#nombre');
+var bienvenida = document.querySelector('.bienvenida');
+var btnIniciar = document.querySelector('#btnIniciar');
+var nombreJugador = '';
+var jugador = document.querySelector('#jugador');
+var contador = document.querySelector('#contador');
+var flecha = document.querySelector('#flecha');
+var nombreRecord = '';
+var valorRecord = 0;
+var pNombreRecord = document.querySelector('#nombreRecord');
+var sValorRecord = document.querySelector('#valorRecord');
 
+
+btnIniciar.addEventListener('click', fnBienvenida, false);
+nombre.addEventListener('focusout', fnGuardarEnLS, false);
+nombre.addEventListener('keydown', fnEnter, false);
+
+function fnBienvenida () {
+  bienvenida.className = 'bienvenida oculto';
+  nombreJugador = localStorage.getItem('bmoArcadeNombre')
+  jugador.innerHTML = nombreJugador;
+  mensajes.push(`${nombreJugador}, ganaste!! sos un winner!!`);
+  mensajes.push(`${nombreJugador}, ganaste!! sin dudas el más grande!!`);
+  mensajes.push(`${nombreJugador}, ganaste!! Olé, olé, olé, olé ${nombreJugador} ${nombreJugador}!!`);
+}
+
+function fnGuardarEnLS () {
+  localStorage.setItem("bmoArcadeNombre", nombre.value);  
+}
+
+function fnEnter (event) {
+  if(event.which == 13) {
+    event.preventDefault();
+    btnIniciar.click();
+  }
+}
+
+function mostrarMovimientos () {
+  for(var i = movimientos.length; movimientos.length > 0 ; i--) {
+    movimientos.pop();
+  }
+  contador.innerHTML = '0';
+  contador.className = 'contador visibleBlock';
+  flecha.className = 'texto-centrado visibleBlock';
+}
+
+function ocultarMovimientos () {
+  contador.className = 'contador oculto';
+  flecha.className = 'texto-centrado oculto';
+}
+
+
+function cargarRecord () {
+  var record = localStorage.getItem('bmoArcadeValorRecord');
+  if(record>0) {
+    pNombreRecord.innerHTML = localStorage.getItem('bmoArcadeNombreRecord');
+    sValorRecord.innerHTML = record;
+  }
+}
 // Representación de la grilla. Cada número representa a una pieza.
 // El 9 es la posición vacía
 var grilla = [
@@ -21,21 +81,63 @@ Cada elemento de este arreglo deberá ser mostrado en la lista con id 'lista-ins
 Para eso deberás usar la función ya implementada mostrarInstruccionEnLista().
 Podés ver su implementación en la ultima parte de este codigo. */
 function mostrarInstrucciones(instrucciones) {
-    //COMPLETAR
+    for(var i=0; i<instrucciones.length; i++) {
+      mostrarInstruccionEnLista(instrucciones[i], 'lista-instrucciones');
+    }
 }
 
 /* COMPLETAR: Crear función que agregue la última dirección al arreglo de movimientos
 y utilice actualizarUltimoMovimiento para mostrarlo en pantalla */
+function agregarUltimaDireccion(direccion) {
+  movimientos.push(direccion);
+  actualizarUltimoMovimiento(direccion);
+  contador.innerHTML = movimientos.length;
+}
 
 /* Esta función va a chequear si el Rompecabezas esta en la posicion ganadora. 
 Existen diferentes formas de hacer este chequeo a partir de la grilla. */
 function chequearSiGano() {
-    //COMPLETAR
+    var token = 1;
+    for(var i=0; i<grilla.length; i++) {
+      for(var j=0; j<grilla[i].length; j++) {
+        if(grilla[i][j] != token) {
+          return false;
+        } 
+        token++;
+      }
+    }
+    return true;
 }
 
 // Implementar alguna forma de mostrar un cartel que avise que ganaste el juego
 function mostrarCartelGanador() {
-    //COMPLETAR
+  
+    var mensajeGanador = document.querySelector('#mensajeGanador');
+    mensajeGanador.innerHTML = mensajes[Math.floor(Math.random() * mensajes.length)];
+    modal.className = 'modal visible';
+    nombreRecord = nombreJugador;
+    valorRecord = movimientos.length;
+    if(localStorage.getItem('bmoArcadeValorRecord') == 0) {
+      localStorage.setItem('bmoArcadeValorRecord', valorRecord);
+      localStorage.setItem('bmoArcadeNombreRecord', nombreRecord);
+      pNombreRecord.innerHTML = nombreRecord;
+      sValorRecord.innerHTML = valorRecord;
+    }
+
+    if(valorRecord < localStorage.getItem('bmoArcadeValorRecord')) {
+        localStorage.setItem('bmoArcadeValorRecord', valorRecord);
+        localStorage.setItem('bmoArcadeNombreRecord', nombreRecord);
+        pNombreRecord.innerHTML = nombreRecord;
+        sValorRecord.innerHTML = valorRecord;
+    }
+    setTimeout(function(){
+      ocultarCartelGanador();
+      iniciar();
+    }, 3000)
+}
+
+function ocultarCartelGanador() {
+  modal.className = 'modal oculto';
 }
 
 /* Función que intercambia dos posiciones en la grilla.
@@ -49,18 +151,23 @@ En vez de intercambiar esos valores vamos a terminar teniendo en ambas posicione
 Se te ocurre cómo solucionar esto con una variable temporal?
 */
 function intercambiarPosicionesGrilla(filaPos1, columnaPos1, filaPos2, columnaPos2) {
-    //COMPLETAR
+    var valorTemporal = grilla[filaPos1][columnaPos1];
+    grilla[filaPos1][columnaPos1] = grilla[filaPos2][columnaPos2];
+    grilla[filaPos2][columnaPos2] = valorTemporal;
 }
 
 // Actualiza la posición de la pieza vacía
 function actualizarPosicionVacia(nuevaFila, nuevaColumna) {
     //COMPLETAR
+    filaVacia = nuevaFila;
+    columnaVacia = nuevaColumna;
 }
 
 
 // Para chequear si la posicón está dentro de la grilla.
 function posicionValida(fila, columna) {
     //COMPLETAR
+    return fila >= 0 && fila<=2 && columna>=0 && columna <=2;
 }
 
 /* Movimiento de fichas, en este caso la que se mueve es la blanca intercambiando su posición con otro elemento.
@@ -68,7 +175,7 @@ Las direcciones están dadas por números que representa: arriba (38), abajo (40
 function moverEnDireccion(direccion) {
   var nuevaFilaPiezaVacia;
   var nuevaColumnaPiezaVacia;
-
+  
   // Mueve pieza hacia la abajo, reemplazandola con la blanca
   if (direccion === codigosDireccion.ABAJO) {
     nuevaFilaPiezaVacia = filaVacia - 1;
@@ -84,11 +191,15 @@ function moverEnDireccion(direccion) {
   // Mueve pieza hacia la derecha, reemplazandola con la blanca
   else if (direccion === codigosDireccion.DERECHA) {
     //COMPLETAR
+    nuevaFilaPiezaVacia = filaVacia;
+    nuevaColumnaPiezaVacia = columnaVacia -1;
   }
     
   // Mueve pieza hacia la izquierda, reemplazandola con la blanca
   else if (direccion === codigosDireccion.IZQUIERDA) {
     // COMPLETAR
+    nuevaFilaPiezaVacia = filaVacia;
+    nuevaColumnaPiezaVacia = columnaVacia +1;
   }
 
   /* A continuación se chequea si la nueva posición es válida, si lo es, se intercambia. 
@@ -100,6 +211,7 @@ function moverEnDireccion(direccion) {
         actualizarPosicionVacia(nuevaFilaPiezaVacia, nuevaColumnaPiezaVacia);
 
   //COMPLETAR: Agregar la dirección del movimiento al arreglo de movimientos
+        agregarUltimaDireccion(direccion);
 
     }
 }
@@ -182,9 +294,11 @@ con idLista. Se crea un elemento li dinámicamente con el texto
 pasado con el parámetro "instrucción". */
 function mostrarInstruccionEnLista(instruccion, idLista) {
   var ul = document.getElementById(idLista);
-  var li = document.createElement("li");
-  li.textContent = instruccion;
-  ul.appendChild(li);
+  if(ul.children.length < instrucciones.length) {
+      var li = document.createElement("li");
+      li.textContent = instruccion;
+      ul.appendChild(li);
+  }
 }
 
 /* Función que mezcla las piezas del tablero una cantidad de veces dada.
@@ -192,7 +306,8 @@ Se calcula una posición aleatoria y se mueve en esa dirección. De esta forma
 se mezclará todo el tablero. */
 
 function mezclarPiezas(veces) {
-  if (veces <= 0) {
+  if (veces <= 0) {    
+    mostrarMovimientos();
     return;
   }
   
@@ -201,6 +316,7 @@ function mezclarPiezas(veces) {
     ];
 
   var direccion = direcciones[Math.floor(Math.random() * direcciones.length)];
+
   moverEnDireccion(direccion);
 
   setTimeout(function() {
@@ -237,6 +353,8 @@ function capturarTeclas() {
 y ejecutando la función para que se capturen las teclas que 
 presiona el usuario */
 function iniciar() {
+    cargarRecord();
+    ocultarMovimientos();
     mostrarInstrucciones(instrucciones);
     mezclarPiezas(30);
     capturarTeclas();
